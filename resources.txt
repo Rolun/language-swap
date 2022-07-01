@@ -7,3 +7,5 @@ https://huggingface.co/spaces/coqui/CoquiTTS
 https://developers.google.com/youtube/v3/quickstart/python
 
 Stream audio from YouTube: https://stackoverflow.com/questions/68522350/python-stream-audio-from-youtube-livestream
+
+Segment away the background music: https://huggingface.co/tasks/audio-to-audio

@@ -14,19 +14,15 @@ manager = ModelManager()
 
 
 def tts_timestamped(timestamped_text: List, model_name: str, speaker_idx: str=None):
-    translated_timestamped = []
-
-    cleaned_text = [i['text'] for i in timestamped_text]
-    import pdb; pdb.set_trace()
-    translated_text = tts(cleaned_text, model_name)
-    for snippet in zip(timestamped_text, translated_text):
-        translated_timestamped.append({
-            "text": snippet[1],
-            "start": snippet[0]["start"],
-            "duration": snippet[0]["duration"]
+    wav_files_timestamped = []
+    for snippet in timestamped_text:
+        print(snippet['text'])
+        wav_files_timestamped.append({
+            "audio": tts(snippet['text'], model_name, speaker_idx),
+            "start": snippet["start"],
+            "duration": snippet["duration"]
         })
-    tts(text, model_name)
-    return
+    return wav_files_timestamped
 
 def fetch_models():
     MODEL_NAMES = manager.list_tts_models()
@@ -68,9 +64,9 @@ def tts(text: str, model_name: str, speaker_idx: str=None):
 
 def main():
     from playsound import playsound
-
-    MODEL_NAME = "en/ljspeech/tacotron2-DDC_ph"
-    TEXT = "This is a test"
+    fetch_models()
+    MODEL_NAME = "de/thorsten/tacotron2-DCA"
+    TEXT = "das ist ein test"
 
     wav_file_name = tts(TEXT, MODEL_NAME)
     playsound(wav_file_name)
