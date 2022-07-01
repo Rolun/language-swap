@@ -1,0 +1,9 @@
+https://github.com/nii-yamagishilab/multi-speaker-tacotron
+https://github.com/espnet/espnet
+https://github.com/Tomiinek/Multilingual_Text_to_Speech
+
+https://huggingface.co/spaces/coqui/CoquiTTS
+
+https://developers.google.com/youtube/v3/quickstart/python
+
+Stream audio from YouTube: https://stackoverflow.com/questions/68522350/python-stream-audio-from-youtube-livestream
