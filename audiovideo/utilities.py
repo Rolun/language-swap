@@ -1,4 +1,6 @@
 from pydub import AudioSegment
+from moviepy.editor import *
+import os
 import tempfile
 
 
@@ -11,7 +13,6 @@ def merge_timestamped_wav(audio_files_timestamped: dict):
             merged_audio += AudioSegment.silent(duration=start_diff)
         merged_audio += AudioSegment.from_wav(sample['audio'])
 
-    import pdb; pdb.set_trace()
 
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as fp:
         merged_audio.export(fp, format="wav")
@@ -21,8 +22,17 @@ def merge_timestamped_wav(audio_files_timestamped: dict):
 
 
 def merge_video_and_wav(video_file: str, audio_file: str):
-    merged_video_path = ""
-    return merged_video_path
+    videoclip = VideoFileClip(video_file)
+    audioclip = AudioFileClip(audio_file)
+
+    new_audioclip = CompositeAudioClip([audioclip])
+    videoclip.audio = new_audioclip
+
+    filename, file_extension = os.path.splitext(video_file)
+    file_path = filename + "_dubbed" + file_extension
+    videoclip.write_videofile(file_path)
+
+    return file_path
 
 
 
