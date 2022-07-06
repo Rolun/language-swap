@@ -2,8 +2,6 @@ from bdb import set_trace
 import tempfile
 from typing import List, Optional
 from TTS.config import load_config
-import gradio as gr
-import numpy as np
 from TTS.utils.manage import ModelManager
 from TTS.utils.synthesizer import Synthesizer
 
@@ -56,6 +54,8 @@ def tts(text: str, model_name: str, speaker_idx: str=None):
     # synthesize
     if synthesizer is None:
         raise NameError("model not found")
+    if text[-1]!=".":
+        text+="."
     wavs = synthesizer.tts(text, speaker_idx)
     # return output
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as fp:
