@@ -1,10 +1,11 @@
+from typing import List
 from pydub import AudioSegment
 from moviepy.editor import *
 import os
 import tempfile
 
 
-def merge_timestamped_wav(audio_files_timestamped: dict):
+def merge_timestamped_wav(audio_files_timestamped: List):
     merged_audio = AudioSegment.empty()
 
     for sample in audio_files_timestamped:
@@ -19,6 +20,25 @@ def merge_timestamped_wav(audio_files_timestamped: dict):
         return fp.name
 
 
+def split_audio_on_transcript_timestamps(audio_file, transcript):
+    wav_files_timestamped = []
+    AudioSegment.converter = "/absolute/path/to/ffmpeg"
+    audio = AudioSegment.from_wav(audio_file)
+
+    for snippet in transcript:
+        wav_files_timestamped.append({
+            "audio": split_audio(audio, snippet["start"], snippet["duration"]),
+            "start": snippet["start"],
+            "duration": snippet["duration"]
+        })
+    return wav_files_timestamped
+
+
+def split_audio(audio, start, duration):
+    split_sound = audio[int(start*1000) : int((start+duration)*1000)]
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as fp:
+        split_sound.export(fp, format='wav')
+        return fp.name
 
 
 def merge_video_and_wav(video_file: str, audio_file: str):

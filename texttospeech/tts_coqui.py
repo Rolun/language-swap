@@ -1,9 +1,10 @@
 from bdb import set_trace
 import tempfile
-from typing import List, Optional
+from typing import Dict, List, Optional
 from TTS.config import load_config
 from TTS.utils.manage import ModelManager
 from TTS.utils.synthesizer import Synthesizer
+import os
 
 
 MAX_TXT_LEN = 100
@@ -11,14 +12,17 @@ MAX_TXT_LEN = 100
 manager = ModelManager()
 
 
-def tts_timestamped(timestamped_text: List, model_name: str, speaker_idx: str=None):
+def tts_timestamped(timestamped_text: List, model_name: str, speaker_timestamped: Dict=None, speaker_idx: str=None):
     wav_files_timestamped = []
-    for snippet in timestamped_text:
-        print(snippet['text'])
+    for snippet in zip(timestamped_text,speaker_timestamped):
+        text_snippet = snippet[0]
+        speaker_snippet = snippet[1]
+        print(text_snippet['text'])
+
         wav_files_timestamped.append({
-            "audio": tts(snippet['text'], model_name, speaker_idx),
-            "start": snippet["start"],
-            "duration": snippet["duration"]
+            "audio": tts(text_snippet['text'], model_name, speaker_snippet["audio"], speaker_idx),
+            "start": text_snippet["start"],
+            "duration": text_snippet["duration"]
         })
     return wav_files_timestamped
 
@@ -34,7 +38,19 @@ def fetch_models():
     print(MODEL_NAMES)
     return MODEL_NAMES
 
-def tts(text: str, model_name: str, speaker_idx: str=None):
+
+def tts(text: str, model_name: str, speaker_wav: str=None, speaker_idx: str=None):
+    if speaker_wav:
+        return tts_cloning(text, model_name, speaker_wav)
+    else:
+        return tts_static(text, model_name, speaker_idx)
+
+def tts_cloning(text: str, model_name: str, speaker_wav: str):
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as fp:
+        os.system('tts --text "'+text+'" --model_name tts_models/multilingual/multi-dataset/your_tts --speaker_wav '+speaker_wav+' --language_idx "en" --out_path '+fp.name)
+        return fp.name
+
+def tts_static(text: str, model_name: str, speaker_idx: str=None):
     if len(text) > MAX_TXT_LEN:
         text = text[:MAX_TXT_LEN]
         print(f"Input text was cutoff since it went over the {MAX_TXT_LEN} character limit.")

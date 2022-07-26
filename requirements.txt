@@ -8,3 +8,4 @@ google-auth-httplib2
 youtube_dl
 pydub
 streamlit
+numpy

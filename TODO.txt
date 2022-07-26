@@ -1,0 +1,11 @@
+General:
+Find or build a voice cloning model that handles different languages
+Clean up the apps interface so it's only a single input and output video
+Add metrics
+Rename the project
+Change license
+Post on HuggingFace and Steamlit
+
+
+Code:
+Create a Timestamped class to easier handle split audio

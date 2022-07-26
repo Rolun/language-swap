@@ -32,22 +32,46 @@ def download_video(url: str, progress_hooks: List=[]):
 
     return video_path
 
+def download_video_and_extract_wav(url: str, progress_hooks: List=[]):
+    video_info = youtube_dl.YoutubeDL().extract_info(url=url, download=False)
+
+    options = {
+        'noplaylist' : True, 
+        'format': 'mp4',
+        'progress_hooks': progress_hooks,
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'wav',
+        }],
+        'outtmpl': f"{video_info['title']}.mp4",
+        'keepvideo': True,
+    }
+    with youtube_dl.YoutubeDL(options) as ydl:
+        ydl.download([video_info['webpage_url']])
+
+    return f"{video_info['title']}.mp4", f"{video_info['title']}.wav"
+
 def download_wav_from_video(url: str):
     video_info = youtube_dl.YoutubeDL().extract_info(url=url, download=False)
 
     options = {
-        'audio-format': 'wav',
-        'keepvideo': False,
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'wav',
+        }],
+        # 'audio-format': 'wav',
+        # 'keepvideo': False,
         'outtmpl': f"{video_info['title']}.wav",
     }
     with youtube_dl.YoutubeDL(options) as ydl:
         ydl.download([video_info['webpage_url']])
 
-    return f"{video_info['title']}" + "-" + f"{video_info['webpage_url']}".split("=")[-1] + ".wav"
+    return f"{video_info['title']}.wav"
 
 def main():
     url = "https://www.youtube.com/watch?v=LA8L3IvFBvQ" #Explaining the confusion matrix
-    file_name = download_video(url)
+    file_name = download_video_and_extract_wav(url)
     print(file_name)
 
 if __name__ == "__main__":

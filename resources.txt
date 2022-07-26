@@ -11,3 +11,18 @@ Stream audio from YouTube: https://stackoverflow.com/questions/68522350/python-s
 Segment away the background music: https://huggingface.co/tasks/audio-to-audio
 
 Pytube instead of youtube_dl?
+
+https://programmer.group/teach-you-how-to-build-a-chinese-speech-synthesis-model-training-and-prediction.html
+
+PyAnnotate.audio
+
+Tacotron: Towards End-to-End Speech Synthesis [https://google.github.io/tacotron/]: https://arxiv.org/abs/1703.10135
+Transfer Learning from Speaker Verification to Multispeaker Text-To-Speech Synthesis [https://google.github.io/tacotron/]: https://arxiv.org/pdf/1806.04558.pdf
+Multilingual Speech Synthesis and Cross-Language Voice Cloning [https://google.github.io/tacotron/]: https://arxiv.org/pdf/1907.04448.pdf
+Speaker Generation [https://google.github.io/tacotron/]: https://arxiv.org/pdf/2111.05095.pdf
+https://github.com/Tomiinek/Multilingual_Text_to_Speech#vocoding: https://arxiv.org/pdf/2008.00768.pdf
+YourTTS: Towards Zero-Shot Multi-Speaker TTS and Zero-Shot Voice Conversion for everyone [https://twitter.com/_akhaliq/status/1550015208642453505]: https://arxiv.org/abs/2112.02418
+Towards cross-lingual voice cloning in higher education: https://www.sciencedirect.com/science/article/pii/S095219762100261X
+Conditional Variational Autoencoder with Adversarial Learning for End-to-End Text-to-Speech: https://arxiv.org/pdf/2106.06103.pdf
+
+@vastal_aggarwal said he is open to help people with TTS
