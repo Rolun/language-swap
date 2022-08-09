@@ -1,4 +1,5 @@
 from bdb import set_trace
+from pyclbr import Function
 import tempfile
 from typing import Dict, List, Optional
 from TTS.config import load_config
@@ -12,18 +13,25 @@ MAX_TXT_LEN = 100
 manager = ModelManager()
 
 
-def tts_timestamped(timestamped_text: List, model_name: str, speaker_timestamped: Dict=None, speaker_idx: str=None):
+def tts_timestamped(timestamped_text: List, model_name: str, update_progress: Function, speaker_timestamped: Dict=None, speaker_idx: str=None, language: str="en"):
     wav_files_timestamped = []
+    loading_length = len(timestamped_text)
+    current_iteration = 0
+
     for snippet in zip(timestamped_text,speaker_timestamped):
         text_snippet = snippet[0]
         speaker_snippet = snippet[1]
+        
         print(text_snippet['text'])
+        update_progress(current_iteration/loading_length, text_snippet['text'])
 
         wav_files_timestamped.append({
-            "audio": tts(text_snippet['text'], model_name, speaker_snippet["audio"], speaker_idx),
+            "audio": tts(text_snippet['text'], model_name, speaker_snippet["audio"], speaker_idx, language),
             "start": text_snippet["start"],
             "duration": text_snippet["duration"]
         })
+
+        current_iteration+=1
     return wav_files_timestamped
 
 def fetch_models():
@@ -39,15 +47,15 @@ def fetch_models():
     return MODEL_NAMES
 
 
-def tts(text: str, model_name: str, speaker_wav: str=None, speaker_idx: str=None):
+def tts(text: str, model_name: str, speaker_wav: str=None, speaker_idx: str=None, language="en"):
     if speaker_wav:
-        return tts_cloning(text, model_name, speaker_wav)
+        return tts_cloning(text, model_name, speaker_wav, language)
     else:
         return tts_static(text, model_name, speaker_idx)
 
-def tts_cloning(text: str, model_name: str, speaker_wav: str):
+def tts_cloning(text: str, model_name: str, speaker_wav: str, language="en"):
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as fp:
-        os.system('tts --text "'+text+'" --model_name tts_models/multilingual/multi-dataset/your_tts --speaker_wav '+speaker_wav+' --language_idx "en" --out_path '+fp.name)
+        os.system('tts --text "'+text+'" --model_name tts_models/multilingual/multi-dataset/your_tts --speaker_wav '+speaker_wav+' --language_idx "'+language+'" --out_path '+fp.name)
         return fp.name
 
 def tts_static(text: str, model_name: str, speaker_idx: str=None):

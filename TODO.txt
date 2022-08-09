@@ -5,7 +5,3 @@ Add metrics
 Rename the project
 Change license
 Post on HuggingFace and Steamlit
-
-
-Code:
-Create a Timestamped class to easier handle split audio

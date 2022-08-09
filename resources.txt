@@ -1,28 +1,38 @@
+Libraries:
 https://github.com/nii-yamagishilab/multi-speaker-tacotron
 https://github.com/espnet/espnet
 https://github.com/Tomiinek/Multilingual_Text_to_Speech
+https://github.com/coqui-ai/TTS
 
-https://huggingface.co/spaces/coqui/CoquiTTS
-
-https://developers.google.com/youtube/v3/quickstart/python
-
+Miscellaneous:
+Ukrain ASR: https://huggingface.co/nvidia/stt_uk_citrinet_1024_gamma_0_25
+Coqui demo: https://huggingface.co/spaces/coqui/CoquiTTS
+YouTube metadata API: https://developers.google.com/youtube/v3/quickstart/python
 Stream audio from YouTube: https://stackoverflow.com/questions/68522350/python-stream-audio-from-youtube-livestream
-
 Segment away the background music: https://huggingface.co/tasks/audio-to-audio
+History of TTS: https://programmer.group/teach-you-how-to-build-a-chinese-speech-synthesis-model-training-and-prediction.html
 
-Pytube instead of youtube_dl?
+Underlying technology:
+VAEs: https://lilianweng.github.io/posts/2018-08-12-vae/
+Flow models: https://lilianweng.github.io/posts/2018-10-13-flow-models/
+Diffusion models: https://lilianweng.github.io/posts/2021-07-11-diffusion-models/
 
-https://programmer.group/teach-you-how-to-build-a-chinese-speech-synthesis-model-training-and-prediction.html
-
-PyAnnotate.audio
-
+Papers:
 Tacotron: Towards End-to-End Speech Synthesis [https://google.github.io/tacotron/]: https://arxiv.org/abs/1703.10135
 Transfer Learning from Speaker Verification to Multispeaker Text-To-Speech Synthesis [https://google.github.io/tacotron/]: https://arxiv.org/pdf/1806.04558.pdf
 Multilingual Speech Synthesis and Cross-Language Voice Cloning [https://google.github.io/tacotron/]: https://arxiv.org/pdf/1907.04448.pdf
+(VITS) Conditional Variational Autoencoder with Adversarial Learning for End-to-End Text-to-Speech [https://tts.readthedocs.io/en/latest/models/vits.html]: https://arxiv.org/pdf/2106.06103.pdf
 Speaker Generation [https://google.github.io/tacotron/]: https://arxiv.org/pdf/2111.05095.pdf
-https://github.com/Tomiinek/Multilingual_Text_to_Speech#vocoding: https://arxiv.org/pdf/2008.00768.pdf
-YourTTS: Towards Zero-Shot Multi-Speaker TTS and Zero-Shot Voice Conversion for everyone [https://twitter.com/_akhaliq/status/1550015208642453505]: https://arxiv.org/abs/2112.02418
+YourTTS: Towards Zero-Shot Multi-Speaker TTS and Zero-Shot Voice Conversion for everyone [https://github.com/Edresson/YourTTS & https://coqui.ai/blog/tts/yourtts-zero-shot-text-synthesis-low-resource-languages]: https://arxiv.org/abs/2112.02418
+https://github.com/Tomiinek/Multilingual_Text_to_Speech: https://arxiv.org/pdf/2008.00768.pdf
 Towards cross-lingual voice cloning in higher education: https://www.sciencedirect.com/science/article/pii/S095219762100261X
-Conditional Variational Autoencoder with Adversarial Learning for End-to-End Text-to-Speech: https://arxiv.org/pdf/2106.06103.pdf
 
-@vastal_aggarwal said he is open to help people with TTS
+Datasets:
+VCTK dataset
+https://www.nb.no/sprakbanken/ressurskatalog/?_search=NST&_type=tale
+
+Notes:
+Pytube instead of youtube_dl?
+PyAnnotate.audio
+@vastal_aggarwal on Twitter said he is open to help people with TTS
+Model saved at: C:\Users\lundb\AppData\Local\tts\tts_models--multilingual--multi-dataset--your_tts

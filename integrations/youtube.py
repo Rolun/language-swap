@@ -10,9 +10,26 @@ def download_audio_video(url: str):
 
     return audio_path, video_path
 
-def download_transcript(url: str):
+def download_transcript(url: str, language=None):
     video_id = url.split("=")[1]
     video_id = video_id.split("&")[0]
+
+    if language:
+        try:
+            transcript = YouTubeTranscriptApi.get_transcript(video_id, language=[language])
+            FinalTranscript = ' '.join([i['text'] for i in transcript])
+            return FinalTranscript,transcript
+        except:
+            try:
+                transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+                transcript = transcript_list.find_transcript(['en'])
+                translated_transcript = transcript.translate(language)
+                transcript = translated_transcript.fetch()
+                FinalTranscript = ' '.join([i['text'] for i in transcript])
+                return FinalTranscript,transcript
+            except:
+                raise Exception("Language can not be translated to")
+
     transcript = YouTubeTranscriptApi.get_transcript(video_id)
     FinalTranscript = ' '.join([i['text'] for i in transcript])
     return FinalTranscript,transcript

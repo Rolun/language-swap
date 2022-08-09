@@ -1,4 +1,5 @@
-Coqui
+coqui
+TTS
 transformers
 playsound
 torch
