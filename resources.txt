@@ -31,6 +31,11 @@ Datasets:
 VCTK dataset
 https://www.nb.no/sprakbanken/ressurskatalog/?_search=NST&_type=tale
 
+Videos:
+HuggingFace TTS deepdive: https://www.youtube.com/watch?v=aLBedWj-5CQ
+Coqui voice cloning tutorial: https://www.youtube.com/watch?v=6QAGk_rHipE
+Coqui tutorial playlist: https://www.youtube.com/playlist?list=PL19C7uchWZerUT0qIiEv7m2zXBs5kYl1L
+
 Notes:
 Pytube instead of youtube_dl?
 PyAnnotate.audio

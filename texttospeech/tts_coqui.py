@@ -13,26 +13,18 @@ MAX_TXT_LEN = 100
 manager = ModelManager()
 
 
-def tts_timestamped(timestamped_text: List, model_name: str, update_progress: Function, speaker_timestamped: Dict=None, speaker_idx: str=None, language: str="en"):
-    wav_files_timestamped = []
-    loading_length = len(timestamped_text)
+def tts_timestamped(data_holder: List, model_name: str, update_progress: Function, speaker_idx: str=None, language: str="en"):
+    loading_length = len(data_holder)
     current_iteration = 0
 
-    for snippet in zip(timestamped_text,speaker_timestamped):
-        text_snippet = snippet[0]
-        speaker_snippet = snippet[1]
-        
-        print(text_snippet['text'])
-        update_progress(current_iteration/loading_length, text_snippet['text'])
+    for snippet in data_holder:
+        message_text = snippet.origional_text + " -> " + snippet.translated_text        
+        print(message_text)
+        update_progress(current_iteration/loading_length, message_text)
 
-        wav_files_timestamped.append({
-            "audio": tts(text_snippet['text'], model_name, speaker_snippet["audio"], speaker_idx, language),
-            "start": text_snippet["start"],
-            "duration": text_snippet["duration"]
-        })
+        snippet.translated_audion_path = tts(snippet.translated_text, model_name, snippet.origional_audio_path, speaker_idx, language)
 
         current_iteration+=1
-    return wav_files_timestamped
 
 def fetch_models():
     MODEL_NAMES = manager.list_tts_models()
@@ -46,12 +38,14 @@ def fetch_models():
     print(MODEL_NAMES)
     return MODEL_NAMES
 
+def clean_text(text):
+    return text.replace('"','').replace("'",'')
 
 def tts(text: str, model_name: str, speaker_wav: str=None, speaker_idx: str=None, language="en"):
     if speaker_wav:
-        return tts_cloning(text, model_name, speaker_wav, language)
+        return tts_cloning(clean_text(text), model_name, speaker_wav, language)
     else:
-        return tts_static(text, model_name, speaker_idx)
+        return tts_static(clean_text(text), model_name, speaker_idx)
 
 def tts_cloning(text: str, model_name: str, speaker_wav: str, language="en"):
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as fp:

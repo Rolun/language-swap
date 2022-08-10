@@ -10,29 +10,31 @@ def download_audio_video(url: str):
 
     return audio_path, video_path
 
-def download_transcript(url: str, language=None):
+def download_transcript(url: str, from_language: str='fr'):
     video_id = url.split("=")[1]
     video_id = video_id.split("&")[0]
 
-    if language:
-        try:
-            transcript = YouTubeTranscriptApi.get_transcript(video_id, language=[language])
-            FinalTranscript = ' '.join([i['text'] for i in transcript])
-            return FinalTranscript,transcript
-        except:
-            try:
-                transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-                transcript = transcript_list.find_transcript(['en'])
-                translated_transcript = transcript.translate(language)
-                transcript = translated_transcript.fetch()
-                FinalTranscript = ' '.join([i['text'] for i in transcript])
-                return FinalTranscript,transcript
-            except:
-                raise Exception("Language can not be translated to")
-
-    transcript = YouTubeTranscriptApi.get_transcript(video_id)
+    transcript = YouTubeTranscriptApi.get_transcript(video_id, [from_language])
     FinalTranscript = ' '.join([i['text'] for i in transcript])
-    return FinalTranscript,transcript
+    return transcript
+
+
+def fetch_translated_transcript(url: str, to_language: str = 'en'):
+    video_id = url.split("=")[1]
+    video_id = video_id.split("&")[0]
+
+    try:
+        transcript = YouTubeTranscriptApi.get_transcript(video_id, [to_language])
+        FinalTranscript = ' '.join([i['text'] for i in transcript])
+    except:
+        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+        transcript = transcript_list.find_transcript()
+        translated_transcript = transcript.translate(to_language)
+        transcript = translated_transcript.fetch()
+        FinalTranscript = ' '.join([i['text'] for i in transcript])
+
+    return transcript
+
 
 def download_video(url: str, progress_hooks: List=[]):
     video_info = youtube_dl.YoutubeDL().extract_info(url=url, download=False)

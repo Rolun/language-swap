@@ -3,16 +3,49 @@ from pydub import AudioSegment
 from moviepy.editor import *
 import os
 import tempfile
+from dataclasses import dataclass
+
+@dataclass
+class Snippet:
+    origional_text: str = ""
+    translated_text: str = ""
+    origional_audio_path: str = ""
+    translated_audion_path: str = ""
+    start_time: float = 0
+    stop_time: float = 0
 
 
-def merge_timestamped_wav(audio_files_timestamped: List):
+def create_data_holder_from_transcript(transcript):
+    data_holder = []
+    for snippet in transcript:
+        data_holder.append(Snippet(
+            origional_text = snippet["text"],
+            start_time = snippet["start"],
+            stop_time= snippet["start"] + snippet["duration"]
+        ))
+    return data_holder
+
+def create_data_holder_from_translated_transcript(transcript):
+    data_holder = []
+    for snippet in transcript:
+        data_holder.append(Snippet(
+            translated_text = snippet["text"],
+            start_time = snippet["start"],
+            stop_time= snippet["start"] + snippet["duration"]
+        ))
+    return data_holder
+
+def merge_timestamped_wav(data_holder: List):
     merged_audio = AudioSegment.empty()
 
-    for sample in audio_files_timestamped:
-        start_diff = sample['start']*1000 - len(merged_audio)
+    for snippet in data_holder:
+        start_diff = snippet.start_time*1000 - len(merged_audio)
         if start_diff>0:
             merged_audio += AudioSegment.silent(duration=start_diff)
-        merged_audio += AudioSegment.from_wav(sample['audio'])
+        try:
+            merged_audio += AudioSegment.from_wav(snippet.translated_audion_path)
+        except:
+            import pdb; pdb.set_trace()
 
 
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as fp:
@@ -20,22 +53,21 @@ def merge_timestamped_wav(audio_files_timestamped: List):
         return fp.name
 
 
-def split_audio_on_transcript_timestamps(audio_file, transcript):
-    wav_files_timestamped = []
+def add_translated_transcript(data_holder, translated_transcript):
+    for snippet in zip(data_holder, translated_transcript):
+        snippet[0].translated_text=snippet[1]["text"]
+    import pdb;pdb.set_trace()
+
+
+def split_audio_on_timestamps(audio_file, data_holder):
     AudioSegment.converter = "/absolute/path/to/ffmpeg"
     audio = AudioSegment.from_wav(audio_file)
 
-    for snippet in transcript:
-        wav_files_timestamped.append({
-            "audio": split_audio(audio, snippet["start"], snippet["duration"]),
-            "start": snippet["start"],
-            "duration": snippet["duration"]
-        })
-    return wav_files_timestamped
+    for snippet in data_holder:
+        snippet.origional_audio_path = _split_and_save_audio(audio, snippet.start_time, snippet.stop_time)
 
-
-def split_audio(audio, start, duration):
-    split_sound = audio[int(start*1000) : int((start+duration)*1000)]
+def _split_and_save_audio(audio, start_time, stop_time):
+    split_sound = audio[int(start_time*1000) : int(stop_time*1000)]
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as fp:
         split_sound.export(fp, format='wav')
         return fp.name

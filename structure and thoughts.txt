@@ -1,0 +1,18 @@
+WaveRNN seems competetive with latest end-to-end wave nets
+
+TTS Model needs to:
+* Be trained trained on multiple different languages and be able to extract between them
+* Have a smooth latent space for the speaker (maybe a latent space for language and speaker combination?)
+
+Translation model needs to:
+* Be trained on the phenomes being about equally long for input and answer
+
+Is there a way to merge the STT, translation and TTS??
+
+Voice Conversion seems like a way to directly transform a voice to another language. 
+Currently it's used to transform one speaker into another one, but we can look to extract a language independant representation (rather than speaker independant)
+and project that into another language, keeping the specifics of the speaker.
+
+Contrastive loss can be used to make sure the latent space is smooth
+
+Must disentangle speaker identity from natural and language/accent based prosody

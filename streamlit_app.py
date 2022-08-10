@@ -38,32 +38,35 @@ def _download_video(url):
     return download_video(url)
 
 @st.experimental_singleton
-def _download_video_and_extract_wav(url):
-    return download_video_and_extract_wav(url)
+def _download_video_and_extract_wav(url, _progress_hooks=[]):
+    return download_video_and_extract_wav(url, _progress_hooks)
 
-@st.experimental_singleton
-def _download_transcript(url, language=None):
-    return download_transcript(url, language)
+def _download_transcript(url, from_language='fr'):
+    return download_transcript(url, from_language)
 
-@st.experimental_singleton
-def _split_audio_on_transcript_timestamps(audio, transcript):
-    return split_audio_on_transcript_timestamps(audio, transcript)
+def _split_audio_on_timestamps(audio, data_holder):
+    return split_audio_on_timestamps(audio, data_holder)
 
-@st.experimental_singleton
 def _translate_timestamped(transcript, translation_model):
     return translate_timestamped(transcript, translation_model)
 
+def _fetch_translated_transcript(url, to_language='en'):
+    return fetch_translated_transcript(url, to_language)
 
-def _tts_timestamped(timestamped_text: List, model_name: str, update_progress: Function, speaker_timestamped: Dict=None, speaker_idx: str=None, language: str="en"):
-    return tts_timestamped(timestamped_text, model_name, update_progress, speaker_timestamped, speaker_idx, language)
+def _tts_timestamped(data_holder: List, model_name: str, update_progress: Function, speaker_idx: str=None, language: str="en"):
+    return tts_timestamped(data_holder, model_name, update_progress, speaker_idx, language)
 
-@st.experimental_singleton
-def _merge_timestamped_wav(wav_files_timestamped):
-    return merge_timestamped_wav(wav_files_timestamped)
+def _merge_timestamped_wav(data_holder):
+    return merge_timestamped_wav(data_holder)
 
-@st.experimental_singleton
 def _merge_video_and_wav(video, merged_wav_file):
     return merge_video_and_wav(video, merged_wav_file)
+
+def _create_data_holder_from_transcript(transcript):
+    return create_data_holder_from_transcript(transcript)
+
+def _create_data_holder_from_translated_transcript(transcript):
+    return create_data_holder_from_translated_transcript(transcript)
 
 
 def main_dev():
@@ -73,7 +76,7 @@ def main_dev():
     if transcript_button:
         clean_transcript,transcript = _download_transcript(url)
         video, audio = _download_video_and_extract_wav(url)   #TODO: Just get the audio from the video file instead of downloading it seperately, the download size is the same
-        audio_timestamped = _split_audio_on_transcript_timestamps(audio, transcript)
+        audio_timestamped = _split_audio_on_timestamps(audio, transcript)
         st.header("Transcript")
         for snippet in zip(transcript, audio_timestamped):
             text_snippet = snippet[0]
@@ -109,35 +112,52 @@ def main_dev():
 
 def main():
     st.title("Translate a YouTube video")
-    url = st.text_input("YouTube URL", value="https://www.youtube.com/watch?v=LA8L3IvFBvQ")
+    url = st.text_input("YouTube URL", value="https://www.youtube.com/watch?v=u_XIDO79zaQ")
     from_language_dropdown = st.selectbox("From language: ", list(LANGUAGES.keys()))
     to_language_dropdown = st.selectbox("To language: ", list(LANGUAGES.keys()))
 
     if st.button("Translate!"):
-        # Get (translated) transcript
-        clean_transcript,transcript = _download_transcript(url, LANGUAGES[to_language_dropdown]["youtube"])
-        
+        # Get a translated transcript
+        try:
+            translated_transcript = _fetch_translated_transcript(url, to_language=LANGUAGES[to_language_dropdown]["youtube"])
+            # Create a data holder to keep track of all data throughout the process
+            data_holder = _create_data_holder_from_translated_transcript(translated_transcript)
+        except:
+            transcript = _download_transcript(url, from_language=LANGUAGES[from_language_dropdown]["youtube"])
+            # Create a data holder to keep track of all data throughout the process
+            data_holder = _create_data_holder_from_transcript(transcript)
+            translated_transcript = _translate_timestamped(transcript, "SEBIS/legal_t5_small_trans_en_sv_small_finetuned")
+            add_translated_transcript(data_holder, translated_transcript)
+
         # Download audio and video
-        video, audio = _download_video_and_extract_wav(url)
+        download_progress = st.progress(0)
+        download_progress_message = st.empty()
+        def update_download_progress(d):
+            if d['status'] == 'downloading':
+                p = d['_percent_str']
+                p = p.replace('%','')
+                download_progress.progress(float(p))
+                download_progress_message.markdown(d['filename'], d['_percent_str'], d['_eta_str'])
+
+        video, audio = _download_video_and_extract_wav(url, [update_download_progress])
+
+        del download_progress
+        del download_progress_message
         
         # Split audio into timestamps
-        audio_timestamped = _split_audio_on_transcript_timestamps(audio, transcript)
-        
-        # Translate transcript if needed
-        #translated_text = _translate_timestamped(transcript, "SEBIS/legal_t5_small_trans_en_sv_small_finetuned")
-        translated_text = transcript
+        _split_audio_on_timestamps(audio, data_holder)
 
         # Run TTS to generate new audio
-        my_bar = st.progress(0)
-        translation_processing_message = st.empty()
+        tts_progress = st.progress(0)
+        translation_progress_message = st.empty()
         def progressbar_update(progress, message):
-            my_bar.progress(progress)
-            translation_processing_message.markdown(message)
+            tts_progress.progress(progress)
+            translation_progress_message.markdown(message)
 
-        wav_files_timestamped = _tts_timestamped(translated_text, "de/thorsten/tacotron2-DCA", progressbar_update, speaker_timestamped=audio_timestamped, language=LANGUAGES[to_language_dropdown]["model"])
+        _tts_timestamped(data_holder, "de/thorsten/tacotron2-DCA", progressbar_update, language=LANGUAGES[to_language_dropdown]["model"])
 
         # Merge the new audio with the video
-        merged_wav_file = _merge_timestamped_wav(wav_files_timestamped)
+        merged_wav_file = _merge_timestamped_wav(data_holder)
         merged_video_file = _merge_video_and_wav(video, merged_wav_file)
 
         #Display the new video
