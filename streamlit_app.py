@@ -1,5 +1,4 @@
 import streamlit as st
-
 from texttospeech.tts_coqui import *
 from translation.translate_huggingface import *
 from integrations.youtube import *
@@ -112,22 +111,23 @@ def main_dev():
 
 def main():
     st.title("Translate a YouTube video")
+    st.warning("The processing time is about 4x the video lenght, so grab yourself a coffe while waiting ☕")
     url = st.text_input("YouTube URL", value="https://www.youtube.com/watch?v=u_XIDO79zaQ")
     from_language_dropdown = st.selectbox("From language: ", list(LANGUAGES.keys()))
     to_language_dropdown = st.selectbox("To language: ", list(LANGUAGES.keys()))
 
     if st.button("Translate!"):
         # Get a translated transcript
-        try:
-            translated_transcript = _fetch_translated_transcript(url, to_language=LANGUAGES[to_language_dropdown]["youtube"])
-            # Create a data holder to keep track of all data throughout the process
-            data_holder = _create_data_holder_from_translated_transcript(translated_transcript)
-        except:
-            transcript = _download_transcript(url, from_language=LANGUAGES[from_language_dropdown]["youtube"])
-            # Create a data holder to keep track of all data throughout the process
-            data_holder = _create_data_holder_from_transcript(transcript)
-            translated_transcript = _translate_timestamped(transcript, "SEBIS/legal_t5_small_trans_en_sv_small_finetuned")
-            add_translated_transcript(data_holder, translated_transcript)
+        # try:
+        translated_transcript = _fetch_translated_transcript(url, to_language=LANGUAGES[to_language_dropdown]["youtube"])
+        # Create a data holder to keep track of all data throughout the process
+        data_holder = _create_data_holder_from_translated_transcript(translated_transcript)
+        # except:
+        #     transcript = _download_transcript(url, from_language=LANGUAGES[from_language_dropdown]["youtube"])
+        #     # Create a data holder to keep track of all data throughout the process
+        #     data_holder = _create_data_holder_from_transcript(transcript)
+        #     translated_transcript = _translate_timestamped(transcript, "SEBIS/legal_t5_small_trans_en_sv_small_finetuned")
+        #     add_translated_transcript(data_holder, translated_transcript)
 
         # Download audio and video
         download_progress = st.progress(0)
@@ -136,8 +136,8 @@ def main():
             if d['status'] == 'downloading':
                 p = d['_percent_str']
                 p = p.replace('%','')
-                download_progress.progress(float(p))
-                download_progress_message.markdown(d['filename'], d['_percent_str'], d['_eta_str'])
+                download_progress.progress(float(p)/100)
+                download_progress_message.markdown("Downloading: " + d['filename'] + " | " + d['_percent_str'] + "ETA: " + d['_eta_str'])
 
         video, audio = _download_video_and_extract_wav(url, [update_download_progress])
 

@@ -56,7 +56,6 @@ def merge_timestamped_wav(data_holder: List):
 def add_translated_transcript(data_holder, translated_transcript):
     for snippet in zip(data_holder, translated_transcript):
         snippet[0].translated_text=snippet[1]["text"]
-    import pdb;pdb.set_trace()
 
 
 def split_audio_on_timestamps(audio_file, data_holder):

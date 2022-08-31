@@ -1,5 +1,5 @@
 from typing import List
-import youtube_dl
+import youtube_dl #TODO: Change to yt-dlp 
 from youtube_transcript_api import YouTubeTranscriptApi
 from playsound import playsound
 
@@ -28,7 +28,7 @@ def fetch_translated_transcript(url: str, to_language: str = 'en'):
         FinalTranscript = ' '.join([i['text'] for i in transcript])
     except:
         transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-        transcript = transcript_list.find_transcript()
+        transcript = transcript_list.find_transcript(["en"])
         translated_transcript = transcript.translate(to_language)
         transcript = translated_transcript.fetch()
         FinalTranscript = ' '.join([i['text'] for i in transcript])
